@@ -1,36 +1,71 @@
-node {
-    def app
+#!groovy
 
-    stage('Clone repository') {
-        /* Let's make sure we have the repository cloned to our workspace */
+// node {
+//     def app
 
-        checkout scm
+//     stage('Clone repository') {
+//         /* Let's make sure we have the repository cloned to our workspace */
+
+//         checkout scm
+//     }
+
+//     stage('Build image') {
+//         /* This builds the actual image; synonymous to
+//          * docker build on the command line */
+
+//         app = docker.build("hellonode")
+//     }
+
+//     stage('Test image') {
+//         /* Ideally, we would run a test framework against our image.
+//          * For this example, we're using a Volkswagen-type approach ;-) */
+
+//         app.inside {
+//             sh 'echo "Tests passed"'
+//         }
+//     }
+
+//     stage('Push image') {
+//         /* Finally, we'll push the image with two tags:
+//          * First, the incremental build number from Jenkins
+//          * Second, the 'latest' tag.
+//          * Pushing multiple tags is cheap, as all the layers are reused. */
+//         docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+//             app.push("${env.BUILD_NUMBER}")
+//             app.push("latest")
+//         }
+//     }
+// }
+
+
+// https://jenkins2.coupadev.com/job/QE/job/docker/configure
+
+def bash(cmd) {
+  sh("""#!/bin/bash --login
+  set -x
+  export PATH=$PATH:$HOME/ci-scripts/
+  . $HOME/ci-scripts/common-jenkins-helpers.sh
+  """ + cmd)
+}
+
+pipeline {
+  agent { label 'e2e' }
+
+  options {
+    buildDiscarder(logRotator(numToKeepStr:'10'))
+    timeout(time: 2, unit: 'HOURS')
+    timestamps()
+    ansiColor('xterm')
+  }
+
+  stages {
+
+    stage('update local devscripts') {
+      steps {
+        // node('ami-baker-control') {
+        sh 'cd /home/jenkins/ci-scripts/; git checkout master ; git reset --hard; git pull --rebase origin master'
+        // }
+      }
     }
-
-    stage('Build image') {
-        /* This builds the actual image; synonymous to
-         * docker build on the command line */
-
-        app = docker.build("hellonode")
-    }
-
-    stage('Test image') {
-        /* Ideally, we would run a test framework against our image.
-         * For this example, we're using a Volkswagen-type approach ;-) */
-
-        app.inside {
-            sh 'echo "Tests passed"'
-        }
-    }
-
-    stage('Push image') {
-        /* Finally, we'll push the image with two tags:
-         * First, the incremental build number from Jenkins
-         * Second, the 'latest' tag.
-         * Pushing multiple tags is cheap, as all the layers are reused. */
-        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
-        }
-    }
+  }
 }
