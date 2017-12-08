@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  redis:
+    image: redis:alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis.conf.sample:/usr/local/etc/redis/redis.conf 
+  mysql:
+    image: mysql:5.7.20
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+

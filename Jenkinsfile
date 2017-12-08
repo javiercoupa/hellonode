@@ -68,6 +68,9 @@ pipeline {
     stage('setup') {
       steps {
         echo "::: project: ${env.COMPOSE_PROJECT_NAME}"
+        sh "echo '${env.COMPOSE_PROJECT_NAME}' > .env"
+
+        //javiercoupa/hellonode/
       }
     }
 
@@ -78,12 +81,19 @@ pipeline {
         // }
       }
     }
+
+    stage('compose up!') {
+      steps {
+        sh 'docker-compose up'
+      }
+    }
   } // stages
 
   post {
     always {
       archive 'tmp/*.log'
       //junit 'build/reports/**/*.xml'
+      sh "docker-compose down -v"
     }
     success {
       echo "::: success"
