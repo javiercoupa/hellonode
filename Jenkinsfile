@@ -66,7 +66,9 @@ pipeline {
   stages {
 
     stage('setup') {
-      echo ${env.COMPOSE_PROJECT_NAME}
+      steps {
+        echo ${env.COMPOSE_PROJECT_NAME}
+      }
     }
 
     stage('update local devscripts') {
