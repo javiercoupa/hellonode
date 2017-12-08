@@ -67,7 +67,7 @@ pipeline {
 
     stage('setup') {
       steps {
-        echo ${env.COMPOSE_PROJECT_NAME}
+        echo "::: project: ${env.COMPOSE_PROJECT_NAME}""
       }
     }
 
