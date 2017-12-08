@@ -49,6 +49,7 @@ def bash(cmd) {
 }
 
 pipeline {
+
   agent { label 'e2e' }
 
   options {
@@ -58,7 +59,15 @@ pipeline {
     ansiColor('xterm')
   }
 
+  environment {
+    COMPOSE_PROJECT_NAME = "${env.JOB_NAME}-${env.BUILD_ID}"
+  }
+
   stages {
+
+    stage('setup') {
+      echo ${env.COMPOSE_PROJECT_NAME}
+    }
 
     stage('update local devscripts') {
       steps {
@@ -67,5 +76,18 @@ pipeline {
         // }
       }
     }
-  }
+  } // stages
+
+  post {
+    always {
+      archive 'tmp/*.log'
+      //junit 'build/reports/**/*.xml'
+    }
+    success {
+      echo "::: success"
+    }
+    failure {
+      echo "::: failure"
+    }
+  } // post
 }
