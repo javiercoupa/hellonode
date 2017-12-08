@@ -84,7 +84,7 @@ pipeline {
 
     stage('compose up!') {
       steps {
-        sh 'docker-compose up'
+        bash "docker-compose up"
       }
     }
   } // stages
@@ -93,7 +93,7 @@ pipeline {
     always {
       archive 'tmp/*.log'
       //junit 'build/reports/**/*.xml'
-      sh "docker-compose down -v"
+      bash "docker-compose down -v"
     }
     success {
       echo "::: success"
